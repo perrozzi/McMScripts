@@ -84,7 +84,7 @@ def checkRequests(requests, useDev):
             print "\033[1;31mCould not get base request {0}\033[1;m\n".format(
                 PrepID)
             continue
-        print "{0} {1}".format(PrepID, base_req['status'])
+        print "{0} {1} ({2}/{3} or {4:3.1f}%)".format(PrepID, base_req['status'], base_req['completed_events'], base_req['total_events'], float(base_req['completed_events'])/float(base_req['total_events'])*100)
 
         for chainID in base_req['member_of_chain']:
             #print chainID
@@ -113,7 +113,7 @@ def checkRequests(requests, useDev):
                     print "\033[1;31mCould not get chained request {0}\033[1;m\n"\
                         .format(member)
                     continue
-                print "{0}{1} {2}".format(space, member, req['status'])
+                print "{0}{1} {2} ({3}/{4} or {5:3.1f}%)".format(space, member, req['status'], req['completed_events'], req['total_events'], float(req['completed_events'])/float(req['total_events'])*100)
         print ""
     return
 

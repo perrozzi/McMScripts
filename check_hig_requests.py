@@ -25,11 +25,17 @@ from requestClass import * # Load class to store request information
 # plot_dir='/afs/cern.ch/user/p/perrozzi/www/work/MC_Higgs_testhmtl'
 plot_dir='/afs/cern.ch/user/p/perrozzi/www/work/MC_Higgs'
 print_to_screen = False
-pwgs=['HIG']
-tags=['HBB','HWW','HGG','HZZ','HTT','ttH','HH']
-prepids=['LHE','GS','DR','Mini']
-statuses=['new','validation','defined','approved','submitted'] #]
-actors=['perrozzi','obondu']
+# print_to_screen = True
+# pwgs=['HIG','SUS','SMP']
+# pwgs=['HIG']
+pwgs=['SUS','SMP','TOP','EXO','BPH','BTV','B2G''JME']
+# tags=['HBB','HWW','HGG','HZZ','HTT','ttH','HH']
+tags=['*']
+# prepids=['LHE','GS','DR','Mini']
+prepids=['RunIIFall17*GS*']
+statuses=['new','validation','defined','approved','submitted','done'] #]
+# actors=['perrozzi','obondu']
+actors=[]
 
 # actors=[]
 # tags=['HBB']
@@ -124,7 +130,10 @@ def getPrepIDListWithAttributes(query_string,tag):
         # print', Completed/Total events=',str(req['completed_events'])+'/'+str(req['total_events']),\
               # '',
         # else: 
-        print '\t('+req['prepid']+')','\n'
+        # print '\t('+req['prepid']+')',
+        print '<a name="'+req['prepid']+'"></a>('+req['prepid']+')',
+        print '<a href="#'+req['prepid']+'">bookmark<a>','\n'
+        # print '\n'
 
         # print '<br>Member of chain(s)<br>'
         print '<br>'
@@ -142,20 +151,22 @@ def getPrepIDListWithAttributes(query_string,tag):
               for req1 in chained_prepIds:
                 prepid1.append('<b>'+req1['prepid']+'</b>')
                 prepid1.append(str(req1['approval'])+'/'+str(req1['status']))
-                prepid1.append(str(req1['completed_events'])+'/'+str(req1['total_events'])+' (<b>'+format(100.*float(req1['completed_events'])/float(req1['total_events']),'.1f')+'%</b>)')
+                prepid1.append(str(req1['completed_events'])+'/'+max(1,str(req1['total_events']))+' (<b>'+format(100.*float(req1['completed_events'])/max(1,float(req1['total_events'])),'.1f')+'%</b>)')
                 if 'GS' not in req1['prepid'] and 'Mini' not in req1['prepid'] and len(req1['reqmgr_name']) > 0:
-                  gif = str(req1['reqmgr_name'][0]['name'].replace('pdmvserv_task_','').replace(req1['prepid'],'').replace('__','/').replace('_','/'))+'.gif'
-                  url = 'https://cms-pdmv.web.cern.ch/cms-pdmv/stats/growth/pdmvserv/task/'+str(req1['prepid'])+gif
-                  gif = url.replace('\\n','').replace("'",'').replace(",",'')
-                  prepid_name = gif.split('/')[8]
-                  gif_name = str(req1['reqmgr_name'][0]['name'].replace('pdmvserv_task_','').replace(req1['prepid'],'').replace('__','_'))
-                  # print 'gif_name',gif_name
-                  # print('wget '+gif+'; mv '+ntpath.basename(gif)+' '+plot_dir+'/plots/'+req1['dataset_name']+'_'+tag+'_'+prepid_name+'.gif')
+                  # gif = str(req1['reqmgr_name'][0]['name'].replace('pdmvserv_task_','').replace(req1['prepid'],'').replace('__','/').replace('_','/'))+'.gif'
+                  # url = 'https://cms-pdmv.web.cern.ch/cms-pdmv/stats/growth/pdmvserv/task/'+str(req1['prepid'])+gif
+                  # gif = url.replace('\\n','').replace("'",'').replace(",",'')
+                  # prepid_name = gif.split('/')[8]
+                  # gif_name = str(req1['reqmgr_name'][0]['name'].replace('pdmvserv_task_','').replace(req1['prepid'],'').replace('__','_'))
+                  # # print 'gif_name',gif_name
+                  # # print('wget '+gif+'; mv '+ntpath.basename(gif)+' '+plot_dir+'/plots/'+req1['dataset_name']+'_'+tag+'_'+prepid_name+'.gif')
                   # os.system('wget '+gif+'; mv '+ntpath.basename(gif)+' '+plot_dir+'/plots/'+req1['dataset_name']+'_'+tag+'_'+prepid_name+gif_name+'.gif')
-                  # prepid1.append('<a href="'+plot_dir.replace('/afs/cern.ch/user/p/perrozzi/www','https://perrozzi.web.cern.ch/perrozzi')+'/plots/'+req1['dataset_name']+'_'+tag+'_'+prepid_name+gif_name+'.gif'+'" target="_blank">Link</a>')
+                  # # prepid1.append('<a href="'+plot_dir.replace('/afs/cern.ch/user/p/perrozzi/www','https://perrozzi.web.cern.ch/perrozzi')+'/plots/'+req1['dataset_name']+'_'+tag+'_'+prepid_name+gif_name+'.gif'+'" target="_blank">Link</a>')
                   # prepid1.append('<a href="'+plot_dir.replace('/afs/cern.ch/user/p/perrozzi/www','https://perrozzi.web.cern.ch/perrozzi')+'/plots/'+req1['dataset_name']+'_'+tag+'_'+prepid_name+gif_name+'.gif'+'" target="_blank"><img src="'+plot_dir.replace('/afs/cern.ch/user/p/perrozzi/www','https://perrozzi.web.cern.ch/perrozzi')+'/plots/'+req1['dataset_name']+'_'+tag+'_'+prepid_name+gif_name+'.gif" style="border: none; height: 100px;" ></a>')
-                  prepid1.append('<a href="'+gif+'" target="_blank"><img src="'+gif+'" style="border: none; height: 100px;" ></a>')
-                else: prepid1.append('')
+                  # # prepid1.append('<a href="'+gif+'" target="_blank"><img src="'+gif+'" style="border: none; height: 100px;" ></a>')
+                  prepid1.append('')
+                else: 
+                  prepid1.append('')
                 prepid1.append(str(req1['priority']))
                 date_modif = str(str(req1['history'][len(req1['history'])-1]['updater']['submission_date']))
                 a = datetime.datetime.now().date()
@@ -190,36 +201,39 @@ def main():
     for pwg in pwgs:
       for tag in tags:
         for prepid in prepids:
+          counter = 1
           for status in statuses:
             # print pwg+'_'+tag+'_'+prepid+'_'+status
             
             if not print_to_screen:
-              f = open('log_'+pwg+'_'+tag+'_'+prepid+'_'+status+'.'+file_extension, 'w')
+              f = open(pwg+'_'+tag+'_'+prepid+'_'+str(counter)+'_'+status+'.'+file_extension, 'w')
               sys.stdout = f
+            
+            counter = counter+1
             
             dict = getPrepIDListWithAttributes('prepid=*'+pwg+'*'+prepid+'*&tags=*'+tag+'*&status='+status,tag)
             # os.system('python getRequests.py -listattr 7 "prepid=*'+pwg+'*'+prepid+'*&tags=*'+tag+'*&status='+status+'" 2>&1 >'+append+' log_'+pwg+'_'+tag+'_'+prepid+'_'+status+'.log')
             # sys.exit()
             
             if not print_to_screen:
-              os.system("mv log_HIG_*."+file_extension+" "+plot_dir)
+              os.system("mv "+pwg+"*"+prepid+"_*."+file_extension+" "+plot_dir)
     
-    for actor in actors:
-      # for tag in tags:
-        for prepid in prepids:
-          for status in statuses:
-            # print pwg+'_'+tag+'_'+prepid+'_'+status
+    # for actor in actors:
+      # # for tag in tags:
+        # for prepid in prepids:
+          # for status in statuses:
+            # # print pwg+'_'+tag+'_'+prepid+'_'+status
             
-            if not print_to_screen:
-              f = open('log_'+actor+'_'+prepid+'_'+status+'.'+file_extension, 'w')
-              sys.stdout = f
+            # if not print_to_screen:
+              # f = open('log_'+actor+'_'+prepid+'_'+status+'.'+file_extension, 'w')
+              # sys.stdout = f
             
-            dict = getPrepIDListWithAttributes('actor='+actor+'&prepid=*'+prepid+'*&status='+status,'')
-            # os.system('python getRequests.py -listattr 7 "prepid=*'+pwg+'*'+prepid+'*&tags=*'+tag+'*&status='+status+'" 2>&1 >'+append+' log_'+pwg+'_'+tag+'_'+prepid+'_'+status+'.log')
-            # sys.exit()
+            # dict = getPrepIDListWithAttributes('actor='+actor+'&prepid=*'+prepid+'*&status='+status,'')
+            # # os.system('python getRequests.py -listattr 7 "prepid=*'+pwg+'*'+prepid+'*&tags=*'+tag+'*&status='+status+'" 2>&1 >'+append+' log_'+pwg+'_'+tag+'_'+prepid+'_'+status+'.log')
+            # # sys.exit()
             
-            if not print_to_screen:
-              os.system("mv log_"+actor+"*."+file_extension+" "+plot_dir)
+            # if not print_to_screen:
+              # os.system("mv log_"+actor+"*."+file_extension+" "+plot_dir)
 
     return
 

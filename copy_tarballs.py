@@ -4,9 +4,12 @@ from subprocess import Popen, PIPE
 exit_anyway_after_check = False
 # exit_anyway_after_check = True
 
-eos_mount_dir = '/afs/cern.ch/user/p/perrozzi/eos/'
+# eos_mount_dir = '/afs/cern.ch/user/p/perrozzi/eos3/'
+eos_mount_dir = '/eos/'
 
+# inputs_dir ='/afs/cern.ch/user/l/lviliani/public/gridpacks'
 inputs_dir ='/afs/cern.ch/work/p/perrozzi/private/git/Hbb/McMScripts/gridpacks'
+# inputs_dir ='/afs/cern.ch/user/l/lviliani/public/gridpacks'
 # inputs_dir ='/afs/cern.ch/work/m/mharrend/public/gridpacksmartina/'
 # inputs_dir ='/afs/cern.ch/work/k/kreis/public/forHIGMC/'
 # inputs_dir ='/afs/cern.ch/work/a/ajafari/public/GridPacks'
@@ -19,7 +22,7 @@ inputs_dir ='/afs/cern.ch/work/p/perrozzi/private/git/Hbb/McMScripts/gridpacks'
 version = "v1"
   
 # target_main = eos_mount_dir+'/cms/store/group/phys_generator/cvmfs/gridpacks/slc6_amd64_gcc481/13TeV/powheg/V2/'
-target_main = eos_mount_dir+'/cms/store/group/phys_generator/cvmfs/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/'
+target_main = eos_mount_dir+'/cms/store/group/phys_generator/cvmfs/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.4.2/'
 
 print 'target main folder',target_main
 if not os.path.isdir(eos_mount_dir+'/cms/store/group/phys_generator/cvmfs/gridpacks/'):

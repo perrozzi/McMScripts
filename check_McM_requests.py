@@ -24,10 +24,14 @@ from requestClass import * # Load class to store request information
 
 plot_dir='/afs/cern.ch/user/p/perrozzi/www/work/MC_Higgs'
 print_to_screen = False
+# pwgs=['HIG']
+# tags=['HBB','HWW','HGG','HZZ','HTT','ttH']
+# prepids=['LHE','GS','DR','Mini']
+# statuses=['new','validation','defined','approved','submitted']
 pwgs=['HIG']
-tags=['HBB','HWW','HGG','HZZ','HTT','ttH']
-prepids=['LHE','GS','DR','Mini']
-statuses=['new','validation','defined','approved','submitted']
+tags=['HBB']
+prepids=['DR']
+statuses=['submitted']
 
 def print_table_header(data, row_length):
     print '<table border="1" CELLPADDING="5">'
@@ -83,7 +87,7 @@ def getPrepIDListWithAttributes(query_string,tag):
         print '<hr>'
         print '<br>Dataset name=<b>',req['dataset_name'],\
               '</b>, Extension=',req['extension'],
-        print '\t('+req['prepid']+')','\n'
+        print '\t(<a href="#'+req['prepid']+'">'+req['prepid']+'<a>)','\n'
 
         print '<br>'
         chains = [x for x in req['member_of_chain'] if x is not None] 

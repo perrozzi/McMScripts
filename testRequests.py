@@ -421,20 +421,30 @@ def getTimeSizeFromFile(stdoutFile, iswmLHE):
         if match is not None:
             nEvents = float(match.group(1))
             continue
-        match = re.match('    <Metric Name="Timing-tstoragefile-write-totalMegabytes" Value="(\d*\.\d*)"/>',
-                         line)
-        if match is not None:
-            totalSize = float(match.group(1))
+        # match = re.match('    <Metric Name="Timing-tstoragefile-write-totalMegabytes" Value="(\d*\.\d*)"/>',
+                         # line)
+        # if match is not None:
+            # totalSize = float(match.group(1))
+            # continue
+        if 'McM Size/event: ' in line:
+            totalSize = float(line.replace('McM Size/event: ',''))
+            # print 'size/event',totalSize
             continue
-        match = re.match('    <Metric Name="AvgEventTime" Value="(\d*\.\d*)"/>',
-                         line)
-        if match is not None:
-            timePerEvent = float(match.group(1))
+        # match = re.match('    <Metric Name="AvgEventTime" Value="(\d*\.\d*)"/>',
+                         # line)
+        # if match is not None:
+            # timePerEvent = float(match.group(1))
+            # if iswmLHE: break
+            # else: continue
+        if 'McM time_event value:' in line:
+            timePerEvent = float(line.replace('McM time_event value: ',''))
+            # print 'time/event',timePerEvent
             if iswmLHE: break
             else: continue
 
     if nEvents != 0:
-        sizePerEvent = totalSize*1024.0/nEvents
+        # sizePerEvent = totalSize*1024.0/nEvents
+        sizePerEvent = totalSize
     else:
         sizePerEvent = -1
     return timePerEvent, sizePerEvent
@@ -444,12 +454,20 @@ def getCSMatchFiltEffFromFile(stdoutFile, iswmLHE):
     matchMatchEff = ''; matchFiltEff = ''; matchCS = ''; 
     fileContents = open(stdoutFile, 'r')
     for line in fileContents:
-        if 'Total		' in line and '+/-' in line: 
-            MatchEff = float(line.split()[16])/100.
+        # if 'Total		' in line and '+/-' in line: 
+            # MatchEff = float(line.split()[16])/100.
+        if 'Matching efficiency = ' in line:
+            line = line.replace('Matching efficiency = ','').split('+/-')[0]
+            # print line
+            MatchEff = float(line)
             # print 'MatchEff',MatchEff
             continue
+        # if 'Filter efficiency (event-level)= ' in line: 
+            # FiltEff = float(line.split()[7])
         if 'Filter efficiency (event-level)= ' in line: 
-            FiltEff = float(line.split()[7])
+            line = line.split('=')[2].split('+-')[0]
+            # print line
+            FiltEff = float(line)
             # print 'FiltEff',FiltEff
             continue
         if 'After filter: final cross section' in line: 
@@ -491,12 +509,14 @@ def getxSecMatchFiltEff(requests):
     for req in requests:
         if not req.useCS() or not req.useFiltEff() or not req.useMatchEff():
             stdoutFile = "LSFJOB_{0}/STDOUT".format(req.getJobIDxsec())
+            # print 'stdoutFile', stdoutFile
             if os.path.exists(stdoutFile):
                 number_complete += 1
                 iswmLHE = False
-                searched = re.search('wmLHE', req.getPrepId())
-                if searched is not None:
-                    iswmLHE = True
+                # searched = re.search('wmLHE', req.getPrepId())
+                # if searched is not None:
+                    # iswmLHE = True
+                iswmLHE = 'wmLHE' in req.getPrepId() and not 'wmLHEGS' in req.getPrepId()
                 if iswmLHE == False:
                     MatchEff, FiltEff, CSPerEvent = getCSMatchFiltEffFromFile(stdoutFile,iswmLHE)
                     req.setFiltEff(FiltEff)
@@ -529,6 +549,8 @@ def extractTest(csvFile):
 
 def main():
     args = getArguments() # Setup flags and get arguments
+    # print 'args.ids',args.ids,'args.csv',args.csv
+    # sys.exit(1)
     if args.ids and args.csv:
         print "Error: Cannot use both -i and -f."
         sys.exit(1)

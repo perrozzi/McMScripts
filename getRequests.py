@@ -105,18 +105,26 @@ def getPrepIDListWithAttributes(query_string,listAttr):
             # print '======================================================================================================================================================================\n',\
                   # '======================================================================================================================================================================'
             if listAttr == 7:
-              if not 'DELETE' in req['dataset_name'] and (len(req['generator_parameters'])>0 and len(req['generator_parameters'][0])>0): 
-                print req['prepid'],',', req['dataset_name'],',',req['extension'],',',req['completed_events'],',',req['total_events'],
-                if(len(req['generator_parameters'])>0 and len(req['generator_parameters'][0])>0): print ',',req['generator_parameters'][0]['cross_section']
+              print req['prepid'],',', req['dataset_name'],
+              if not 'DELETE' in req['dataset_name'] and (len(req['generator_parameters'])>0 and len(req['generator_parameters'][len(req['generator_parameters'])-1])>0): 
+                print ',',req['extension'],',',req['completed_events'],',',req['total_events'],
+                if(len(req['generator_parameters'])>0 and len(req['generator_parameters'][len(req['generator_parameters'])-1])>0): print ',',req['generator_parameters'][len(req['generator_parameters'])-1]['cross_section']
                 else: print ''
+              else: print ''
             else:
               if listAttr < 6: print bcolors.MAGENTA +\
                     'prepid='+ bcolors.ENDC,req['prepid'],', ',
-              print bcolors.MAGENTA+'Dataset name='+ bcolors.ENDC,req['dataset_name'],\
+              if listAttr < 8:
+                print bcolors.MAGENTA+'Dataset name='+ bcolors.ENDC,req['dataset_name'],\
                     ', '+bcolors.MAGENTA+'Extension='+ bcolors.ENDC,req['extension'],
+              else:
+                print 'Dataset name=',req['dataset_name'],\
+                    ', '+'Extension=',req['extension'],
               if listAttr < 6: print', '+bcolors.MAGENTA+'Completed/Total events='+ bcolors.ENDC,str(req['completed_events'])+'/'+str(req['total_events']),\
                     ''+ bcolors.ENDC,
-              else: print '\t('+req['prepid']+')','\n'
+              else: 
+                  print '\t('+req['prepid']+')'
+                  if listAttr < 8: print '\n'
                 
               if listAttr > 0 and listAttr < 6:
                   print bcolors.RED +\
@@ -160,7 +168,7 @@ def getPrepIDListWithAttributes(query_string,listAttr):
                         '\n'\
                         'McM Edit Link= https://cms-pdmv.cern.ch/mcm/edit?db_name=requests&prepid='+req['prepid'],\
                         ''+ bcolors.ENDC
-              if listAttr > 3:
+              if listAttr > 3 and listAttr < 8:
                   print bcolors.YELLOW +\
                     'Member of chain(s)'
                   for current_chain in req['member_of_chain']:
@@ -191,6 +199,30 @@ def getPrepIDListWithAttributes(query_string,listAttr):
                       'McM View Link= https://cms-pdmv.cern.ch/mcm/chained_requests?shown=4095&prepid='+current_chain,\
                       ''+ bcolors.YELLOW
                       else: print '\n'
+              elif listAttr == 8:
+                  # print bcolors.YELLOW +\
+                    # 'Member of chain(s)'
+                  prepid1 = []
+                  for current_chain in req['member_of_chain']:
+                      query_chains = "member_of_chain="+current_chain
+                      temp = sys.stdout
+                      f = open('/dev/null', 'w')
+                      sys.stdout = f
+                      chained_prepIds=getMcMlist(query_chains,False)
+                      sys.stdout = temp
+                      if not chained_prepIds: continue
+                      for req1 in chained_prepIds:
+                        if not ('MiniAOD' in str(req1['prepid']) or 'DR76' in str(req1['prepid']) or 'reHLT' in str(req1['prepid'])):
+                            prepid1.append( str(req1['prepid'])+' '+str(req1['completed_events']) )
+                  counter = 0
+                  # prepid1 = [prepid for prepid in prepid1 if ('GS' in prepid or 'LHE' in prepid)]
+                  for prepid in set(prepid1):
+                      arrow = ''
+                      if counter < len(set(prepid1))-1:
+                          arrow = ' -> '
+                      counter = counter+1
+                      print str(prepid).strip('[').strip(']').replace("u'",'').replace("'","").replace(","," ")+arrow,
+                  print ''
               if listAttr > 4 and listAttr < 6:
                   print bcolors.WHITE +'Fragment code=\n'+\
                         bcolors.Gray_like_Ghost +\
@@ -198,7 +230,7 @@ def getPrepIDListWithAttributes(query_string,listAttr):
                         ''+ bcolors.ENDC
               print bcolors.ENDC
         
-              if listAttr > 1: print '======================================================================================================================================================================\n\n',\
+              if listAttr > 1 and listAttr < 8: print '======================================================================================================================================================================\n\n',\
         
 def getPrepIDList(query_string, getNew, getForValidation, getChain):
     req_list = getMcMlist(query_string,True)

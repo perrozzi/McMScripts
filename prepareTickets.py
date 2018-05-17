@@ -11,8 +11,9 @@ from rest import * # Load class to access McM
 
 useDev = False
 mcm = restful( dev=useDev ) # Get McM connection
-pwgs=mcm.get('/restapi/users/get_pwg')['results']
-print pwgs
+# pwgs=mcm.get('/restapi/users/get_pwg')['results']
+pwgs = ['HIG']
+print 'pwgs',pwgs
 #Pair between
 ochain = 'chain_RunIIWinter15pLHE_flowRunIISpring15FSPreMix_flowRunIISpring15MiniAODv2'
 dchain = 'RunIISpring15FSPreMixMiniAODv2PLHE'
@@ -30,7 +31,7 @@ for pwg in pwgs:
       campaign = root_id.split('-')[1]
       collector[pwg][campaign][root_id]+=1
 print "This is the list of %s requests that are deemed chainable for miniaod round 2"%(pwgs)
-print collector
+print 'collector',collector
 all_ticket=[]
 for pwg in pwgs:
     ## create a ticket for the correct chain
