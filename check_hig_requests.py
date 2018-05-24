@@ -285,10 +285,10 @@ def main():
             if move_files_to_www:
               os.system("mv "+pwg+"*"+prepid+"_*."+file_extension+" "+plot_dir)
     
-    if move_files_to_www:
-      os.system("wget https://dmytro.web.cern.ch/dmytro/cmsprodmon/images/campaign-RunningCpus.png; mv campaign-RunningCpus.png "+plot_dir)
-      os.system("wget https://dmytro.web.cern.ch/dmytro/cmsprodmon/images/prioritysummarycpusinuse.png; mv prioritysummarycpusinuse.png "+plot_dir)
-      os.system("wget https://dmytro.web.cern.ch/dmytro/cmsprodmon/images/prioritysummarycpuspending.png; mv prioritysummarycpuspending.png "+plot_dir)
+    # if move_files_to_www:
+      # os.system("wget https://dmytro.web.cern.ch/dmytro/cmsprodmon/images/campaign-RunningCpus.png; mv campaign-RunningCpus.png "+plot_dir)
+      # os.system("wget https://dmytro.web.cern.ch/dmytro/cmsprodmon/images/prioritysummarycpusinuse.png; mv prioritysummarycpusinuse.png "+plot_dir)
+      # os.system("wget https://dmytro.web.cern.ch/dmytro/cmsprodmon/images/prioritysummarycpuspending.png; mv prioritysummarycpuspending.png "+plot_dir)
     
     return
 
