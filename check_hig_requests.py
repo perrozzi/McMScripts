@@ -26,18 +26,35 @@ plot_dir='/afs/cern.ch/user/p/perrozzi/www/work/MC_Higgs'
 move_files_to_www = True
 # move_files_to_www = False
 
-pwgs=['HIG','SUS','SMP','TOP','EXO','BPH','BTV','B2G','JME','MUO','FSQ']
+# print sys.argv
+# sys.exit(1)
+
+pwgs=[sys.argv[1]]
 tags=['*']
-prepids=['RunIIFall17*GS*']
-order=['1','2','3','4','5','6']
-statuses=['new','validation','defined','approved','submitted','done']
+prepids=[sys.argv[2]]
+statuses=[sys.argv[3]]
 actors=[]
+order=[]
+if statuses[0] == 'new':
+  order=['1']
+elif statuses[0] == 'validation':
+  order=['2']
+elif statuses[0] == 'defined':
+  order=['3']
+elif statuses[0] == 'approved':
+  order=['4']
+elif statuses[0] == 'submitted':
+  order=['5']
+elif statuses[0] == 'done':
+  order=['6']
 
 # pwgs=['BTV']
 # tags=['*']
 # prepids=['RunIIFall17*GS*']
 # order=['2','5']
 # statuses=['validation','submitted']
+# # order=['2']
+# # statuses=['validation']
 # actors=[]
 
 
@@ -143,16 +160,11 @@ def getPrepIDListWithAttributes(query_string,tag,file):
     file.write('    td = tr[i].getElementsByTagName("td")[0];\n')
     file.write('    if (td) {\n')
     file.write('      id = td.id;\n')
-    # file.write('      if (id = "td1"){\n')
-    # file.write('      if (td.innerHTML = "bookmark"){\n')
-    # file.write('       document.write(id);\n')
-    # file.write('       document.write(td.innerHTML);\n')
     file.write('       if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {\n')
     file.write('          tr[i].style.display = "";\n')
     file.write('       } else {\n')
     file.write('          tr[i].style.display = "none";\n')
     file.write('       }\n')
-    # file.write('      }\n')
     file.write('    } \n')
     file.write('  }\n')
     file.write('}\n')
@@ -208,60 +220,69 @@ def getPrepIDListWithAttributes(query_string,tag,file):
 
     if req_list is None:
       file.write("Could not get requests from McM"); #return
-    else: file.write('\n')
-    for req in req_list:
-        file.write('<tr>\n')
-        file.write('<td id="td1">\n')
-        file.write('<b>'+req['dataset_name']+'</b>\n')
-        file.write('<br><br><a href="#'+req['prepid']+'">bookmark<a>\n')
-        file.write('<td>\n')
-        file.write(req['prepid'])
-        file.write('<td>\n')
-        file.write(str(req['extension']))
+    else: 
+      file.write('\n')
+      for req in req_list:
+          file.write('<tr>\n')
+          file.write('<td id="td1">\n')
+          file.write('<b>'+req['dataset_name']+'</b>\n')
+          file.write('<br><br><a href="#'+req['prepid']+'">bookmark<a>\n')
+          file.write('<td>\n')
+          file.write(req['prepid'])
+          file.write('<td>\n')
+          file.write(str(req['extension']))
 
-        file.write('<td>\n')
-        chains = [x for x in req['member_of_chain'] if x is not None] 
-        for current_chain in chains:           
-            query_chains = "member_of_chain="+current_chain
-            temp = sys.stdout
-            f = open('/dev/null', 'w')
-            sys.stdout = f
-            chained_prepIds=getMcMlist(query_chains,False)
-            sys.stdout = temp
-            prepid1 = []
-            if chained_prepIds is not None:
-              for req1 in chained_prepIds:
-                prepid1.append('<b>'+req1['prepid']+'</b>')
-                prepid1.append(str(req1['approval'])+'/'+str(req1['status']))
-                prepid1.append(str("{:,}".format(req1['completed_events']))+'/'+max(1,str("{:,}".format(req1['total_events'])))+' (<b>'+format(100.*float(req1['completed_events'])/max(1,float(req1['total_events'])),'.1f')+'%</b>)')
-                if 'GS' in req1['prepid']:
-                  dima='https://dmytro.web.cern.ch/dmytro/cmsprodmon/workflows.php?prep_id=task_'+req1['prepid']
-                  prepid1.append('<a href="'+dima+'" target="_blank">prodmon</a>')
-                  if len(req1['reqmgr_name']) > 0:
-                    url = 'https://cms-pdmv.cern.ch/pmp/historical?r='+req1['reqmgr_name'][0]['name']
-                    prepid1[len(prepid1)-1] = prepid1[len(prepid1)-1]+' <br> <a href="'+url+'" target="_blank">pmp</a>'
-                else: 
-                  prepid1.append('')
-                prepid1.append(str(req1['priority']))
-                date_modif = str(str(req1['history'][len(req1['history'])-1]['updater']['submission_date']))
-                a = datetime.datetime.now().date()
-                date_modif_list = date_modif.split('-')
-                b = datetime.date(int(date_modif_list[0]),int(date_modif_list[1]),int(date_modif_list[2]))
-                day_diff= (a-b).days
-                prepid1.append(str(req1['history'][len(req1['history'])-1]['action'])+' '+str(req1['history'][len(req1['history'])-1]['updater']['submission_date'])+' (<b>'+str(day_diff)+' days ago</b>)')
-            n=6
-            prepid1 = [prepid1[i:i+n] for i in range(0, len(prepid1), n)]
-            file.write('<br><a href="https://cms-pdmv.cern.ch/mcm/chained_requests?shown=4095&prepid='+current_chain+'" target="_blank">'+current_chain+'</a>'+" : <br>")
-            print_div_header(['prepid','Approv/Status','Compl Evts','Monitoring','Priority','Last update'],n,file)
-            if prepid1 is not None:
-              for prepid in prepid1[::-1]:
-                prepid = [x for x in prepid if x is not None] 
-                print_div(prepid,n,file)
-            print_div_footer(file)
-        
-        file.write('<td>\n')
-        file.write('</td>\n')
-        file.write('</tr>\n')
+          file.write('<td>\n')
+          chains = [x for x in req['member_of_chain'] if x is not None] 
+          for current_chain in chains:           
+              query_chains = "member_of_chain="+current_chain
+              temp = sys.stdout
+              f = open('/dev/null', 'w')
+              sys.stdout = f
+              chained_prepIds=getMcMlist(query_chains,False)
+              sys.stdout = temp
+              prepid1 = []
+              static = ""
+              running = ""
+              if chained_prepIds is not None:
+                for req1 in chained_prepIds:
+                  prepid1.append('<b>'+req1['prepid']+'</b>')
+                  prepid1.append(str(req1['approval'])+'/'+str(req1['status']))
+                  prepid1.append(str("{:,}".format(req1['completed_events']))+'/'+max(1,str("{:,}".format(req1['total_events'])))+' (<b>'+format(100.*float(req1['completed_events'])/max(1,float(req1['total_events'])),'.1f')+'%</b>)')
+                  if 'GS' in req1['prepid']:
+                    dima='https://dmytro.web.cern.ch/dmytro/cmsprodmon/workflows.php?prep_id=task_'+req1['prepid']
+                    prepid1.append('<a href="'+dima+'" target="_blank">prodmon</a>')
+                    if len(req1['reqmgr_name']) > 0:
+                      url = 'https://cms-pdmv.cern.ch/pmp/historical?r='+req1['reqmgr_name'][0]['name']
+                      prepid1[len(prepid1)-1] = prepid1[len(prepid1)-1]+' <br> <a href="'+url+'" target="_blank">pmp</a>'
+                      url = 'https://cms-pdmv-dev.cern.ch/pmp/api/historical_image/'+req1['reqmgr_name'][0]['name']
+                      static = ' <br> <a href="'+url+'" target="_blank"> <img src="'+url+'" style="border: none; width: 300px; "></a>'
+                      url = 'https://cms-gwmsmon.cern.ch/prodview/graphs/'+req1['reqmgr_name'][0]['name']+'/weekly'
+                      running = ' <a href="'+url+'" target="_blank"> <img src="'+url+'" style="border: none; width: 300px; "></a>'
+                  else: 
+                    prepid1.append('')
+                  prepid1.append(str(req1['priority']))
+                  date_modif = str(str(req1['history'][len(req1['history'])-1]['updater']['submission_date']))
+                  a = datetime.datetime.now().date()
+                  date_modif_list = date_modif.split('-')
+                  b = datetime.date(int(date_modif_list[0]),int(date_modif_list[1]),int(date_modif_list[2]))
+                  day_diff= (a-b).days
+                  prepid1.append(str(req1['history'][len(req1['history'])-1]['action'])+' '+str(req1['history'][len(req1['history'])-1]['updater']['submission_date'])+' (<b>'+str(day_diff)+' days ago</b>)')
+              n=6
+              prepid1 = [prepid1[i:i+n] for i in range(0, len(prepid1), n)]
+              file.write('<br><a href="https://cms-pdmv.cern.ch/mcm/chained_requests?shown=4095&prepid='+current_chain+'" target="_blank">'+current_chain+'</a>'+" : <br>")
+              file.write(static)
+              file.write(running)
+              print_div_header(['prepid','Approv/Status','Compl Evts','Monitoring','Priority','Last update'],n,file)
+              if prepid1 is not None:
+                for prepid in prepid1[::-1]:
+                  prepid = [x for x in prepid if x is not None] 
+                  print_div(prepid,n,file)
+              print_div_footer(file)
+          
+          file.write('<td>\n')
+          file.write('</td>\n')
+          file.write('</tr>\n')
 
     file.write('</table>\n')
     file.write('<br>Correctly finished listing requests<br>\n')
