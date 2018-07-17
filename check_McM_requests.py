@@ -67,8 +67,8 @@ def print_table(data, row_length):
 
 def getMcMlist(query_string,printout):
     useDev = False
-    mcm = restful( dev=useDev ) # Get McM connection
-    req_list = mcm.getA('requests', query=query_string)
+    mcm = McM( dev=useDev ) # Get McM connection
+    req_list = mcm.get('requests', query=query_string)
     return req_list
 
 def getPrepIDListWithAttributes(query_string,tag):

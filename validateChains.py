@@ -70,7 +70,7 @@ def parseIDList(compactList):
 
 
 def validate(chains):
-    mcm = restful(dev=False)
+    mcm = McM(dev=False)
 
     print "Validating {0} chained requests".format(len(chains))
     for PrepID in chains:

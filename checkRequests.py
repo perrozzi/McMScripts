@@ -71,12 +71,12 @@ def parseIDList(compactList):
 
 
 def checkRequests(requests, useDev):
-    mcm = restful(dev=useDev) # Get McM connection
+    mcm = McM(dev=useDev) # Get McM connection
 
     for PrepID in requests:
         failed_to_get = True
         for tries in range(3):
-            base_req = mcm.getA('requests', PrepID)
+            base_req = mcm.get('requests', PrepID)
             if base_req is not None:
                 failed_to_get = False
                 break
@@ -90,7 +90,7 @@ def checkRequests(requests, useDev):
             #print chainID
             failed_to_get = True
             for tries in range(3):
-                chain_req = mcm.getA('chained_requests', chainID)
+                chain_req = mcm.get('chained_requests', chainID)
                 if chain_req is not None:
                     failed_to_get = False
                     break
@@ -105,7 +105,7 @@ def checkRequests(requests, useDev):
                 space = space + " "
                 failed_to_get = True
                 for tries in range(3):
-                    req = mcm.getA('requests', member)
+                    req = mcm.get('requests', member)
                     if req is not None:
                         failed_to_get = False
                         break

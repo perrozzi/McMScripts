@@ -307,7 +307,7 @@ def fillFields(csvfile, fields, campaign, PWG, notCreate_):
 
 def createRequests(requests, num_requests, doDryRun, useDev):
     # Create new requests based on campaign and PWG
-    mcm = restful(dev=useDev) # Get McM connection
+    mcm = McM(dev=useDev) # Get McM connection
 
     if not doDryRun:
         print "Adding {0} requests to McM.".format(num_requests)
@@ -349,12 +349,12 @@ def createRequests(requests, num_requests, doDryRun, useDev):
             new_req['notes'] = reqFields.getNotes()
 
         if not doDryRun:
-            answer = mcm.putA('requests', new_req) # Create request
+            answer = mcm.put('requests', new_req) # Create request
             if answer['results']:
                 # Cannot fill generator parameters while creating a new request
                 # Modify newly created request with generator parameters
                 # Get newly created request
-                mod_req = mcm.getA('requests', answer['prepid'])
+                mod_req = mcm.get('requests', answer['prepid'])
                 # Fill generator parameters
                 mod_req['generator_parameters'][0]['cross_section'] \
                     = reqFields.getCS()
@@ -367,7 +367,7 @@ def createRequests(requests, num_requests, doDryRun, useDev):
                 mod_req['generator_parameters'][0]['match_efficiency_error'] \
                     = reqFields.getMatchEffErr()
                 # Update request with generator parameters
-                update_answer = mcm.updateA('requests', mod_req)
+                update_answer = mcm.update('requests', mod_req)
                 if update_answer['results']:
                     print "\033[0;32m{0} created\033[0;m".format(answer['prepid'])
                 else:
@@ -389,7 +389,7 @@ def createRequests(requests, num_requests, doDryRun, useDev):
 
 def modifyRequests(requests, num_requests, doDryRun, useDev, isLHErequest):
     # Modify existing request based on PrepId
-    mcm = restful(dev=useDev) # Get McM connection
+    mcm = McM(dev=useDev) # Get McM connection
 
     if not doDryRun:
         print "Modifying {0} requests to McM.".format(num_requests)
@@ -411,7 +411,7 @@ def modifyRequests(requests, num_requests, doDryRun, useDev, isLHErequest):
             failed_to_get = True
             for tries in range(3):
                 time.sleep(0.1)
-                mod_req_list = mcm.getA('requests', query=query_string)
+                mod_req_list = mcm.get('requests', query=query_string)
                 if mod_req_list is not None:
                     failed_to_get = False
                     break
@@ -433,7 +433,7 @@ def modifyRequests(requests, num_requests, doDryRun, useDev, isLHErequest):
                 print "\033[0;31mPrepId is missing.\033[0;m"
                 continue
             time.sleep(0.1)
-            mod_req = mcm.getA('requests', reqFields.getPrepId())
+            mod_req = mcm.get('requests', reqFields.getPrepId())
 
         if reqFields.useDataSetName() and not isLHErequest:
             mod_req['dataset_name'] = reqFields.getDataSetName()
@@ -486,7 +486,7 @@ def modifyRequests(requests, num_requests, doDryRun, useDev, isLHErequest):
             mod_req['notes'] = reqFields.getNotes()
 
         if not doDryRun:
-            answer = mcm.updateA('requests', mod_req) # Update request
+            answer = mcm.update('requests', mod_req) # Update request
             if answer['results']:
                 if not isLHErequest:
                     print "\033[0;32m{0} modified\033[0;m".format(
@@ -514,7 +514,7 @@ def modifyRequests(requests, num_requests, doDryRun, useDev, isLHErequest):
 
 def cloneRequests(requests, num_requests, doDryRun, useDev, cloneId_):
     # Create new requests be cloning an old one based on PrepId
-    mcm = restful(dev=useDev) # Get McM connection
+    mcm = McM(dev=useDev) # Get McM connection
 
     if not doDryRun:
         print "Adding {0} requests to McM using clone.".format(num_requests)
@@ -522,7 +522,7 @@ def cloneRequests(requests, num_requests, doDryRun, useDev, cloneId_):
         print "Dry run. {0} requests will not be added to McM using clone.".format(
             num_requests)
     for reqFields in requests:
-        clone_req = mcm.getA('requests', cloneId_) # Get request to clone
+        clone_req = mcm.get('requests', cloneId_) # Get request to clone
         if reqFields.useDataSetName():
             clone_req['dataset_name'] = reqFields.getDataSetName()
         if reqFields.useMCDBID():
@@ -565,8 +565,8 @@ def cloneRequests(requests, num_requests, doDryRun, useDev, cloneId_):
             clone_req['notes'] = reqFields.getNotes()
 
         if not doDryRun:
-            answer = mcm.clone(cloneId_, clone_req) # Clone request
-            if answer['results']:
+            answer = mcm.clone_request(clone_req) # Clone request
+            if answer.get('results'):
                 print "\033[0;32m{0} created using clone\033[0;m".format(
                     answer['prepid'])
             else:
