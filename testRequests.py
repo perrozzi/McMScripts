@@ -179,8 +179,8 @@ def createTest(compactPrepIDList, outputFile, newcsv, nEvents, xsec, nEventsXsec
             # else:
                 # csvfile.writerow([req.getPrepId(), req.getJobID(), "", ""])
         else:
-            mcm = restful(dev=False) # Get McM connection
-            mcm_req = mcm.getA('chained_requests', req.getPrepId())
+            mcm = McM(dev=False) # Get McM connection
+            mcm_req = mcm.get('chained_requests', req.getPrepId())
             wmLHEPrepId = mcm_req['chain'][0]
             GSPrepId = mcm_req['chain'][1]
             # if xsec:

@@ -10,7 +10,7 @@ sys.path.append('/afs/cern.ch/cms/PPD/PdmV/tools/McM/')
 from rest import * # Load class to access McM
 
 useDev = False
-mcm = restful( dev=useDev ) # Get McM connection
+mcm = McM( dev=useDev ) # Get McM connection
 # pwgs=mcm.get('/restapi/users/get_pwg')['results']
 pwgs = ['HIG']
 print 'pwgs',pwgs
@@ -24,7 +24,7 @@ print 50*"-"
 for pwg in pwgs:
     print "\t",pwg
     ## get all chains from that pwg in that chained campaign
-    crs = mcm.getA('chained_requests', query='member_of_campaign=%s&pwg=%s'%(ochain,pwg))
+    crs = mcm.get('chained_requests', query='member_of_campaign=%s&pwg=%s'%(ochain,pwg))
     for cr in crs:
       root_id = cr['chain'][0]
       print "\t\t",root_id
@@ -35,7 +35,7 @@ print 'collector',collector
 all_ticket=[]
 for pwg in pwgs:
     ## create a ticket for the correct chain
-    ccs = mcm.getA('chained_campaigns', query='alias=%s'%(dchain))
+    ccs = mcm.get('chained_campaigns', query='alias=%s'%(dchain))
     for cc in ccs:
         alias = cc['alias']
         root_campaign = cc['campaigns'][0][0]
@@ -62,7 +62,7 @@ all_ticket = json.loads(open('all_tickets.json').read())
 for ticket in all_ticket:
     ### flip the switch (set it to false first, see if all requests you need are in the ticket)
     if createTicket:
-        mcm.putA('mccms', ticket )
+        mcm.put('mccms', ticket )
         time.sleep(5)
     pass
 
