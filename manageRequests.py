@@ -566,7 +566,7 @@ def cloneRequests(requests, num_requests, doDryRun, useDev, cloneId_):
 
         if not doDryRun:
             answer = mcm.clone_request(clone_req) # Clone request
-            if answer['results']:
+            if answer.get('results'):
                 print "\033[0;32m{0} created using clone\033[0;m".format(
                     answer['prepid'])
             else:
